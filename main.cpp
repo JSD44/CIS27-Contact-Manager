@@ -668,11 +668,13 @@ int main() {
 
 		case 9:
 			cout << "Exiting..." << endl;
+			return 0;
 			break;
 
 		case 10:
 			directory.saveToFile(filename);
 			cout << "Saving and Exiting..." << endl;
+			return 0;
 			break;
 
 		default:
@@ -680,7 +682,7 @@ int main() {
 			break;
 		}
 
-	} while (choice != (9 || 10));
+	} while (choice != 10);
 
 	// Save contacts to file
 	directory.saveToFile("contacts.txt");
