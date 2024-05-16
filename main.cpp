@@ -141,15 +141,16 @@ public:
 					int selectedID;
 					cin >> selectedID;
 					cin.ignore(); // Ignore the newline character left in the input buffer
+
 					// Merge contact information with the selected existing contact
-					for (const auto& entry : contacts) {
+					index = 1;
+					for (auto& entry : contacts) {
 						if (entry.second.name == contact.name) {
-							if (selectedID == index) {
+							if (selectedID == entry.second.getID()) {
 								contacts[entry.first].phone_numbers.insert(contact.phone_numbers.begin(), contact.phone_numbers.end());
 								cout << "Contact merged successfully." << endl;
 								return;
 							}
-							index++;
 						}
 					}
 					cout << "Invalid contact ID. Contact not merged." << endl;
@@ -173,32 +174,30 @@ public:
 		cout << "Contact added successfully." << endl;
 	}
 
-	// Delete contact by searching the map using the generated key
 	void deleteContact(ContactDirectory& directory, const string& name) {
 		// Search for contacts with the given name
-		vector<Contact*> matchingContacts;
-		for (auto& entry : directory.contacts) {
+		vector<string> matchingKeys;
+		for (const auto& entry : directory.contacts) {
 			if (entry.second.name == name) {
-				matchingContacts.push_back(&(entry.second));
+				matchingKeys.push_back(entry.first);
 			}
 		}
 
-		if (matchingContacts.empty()) {
+		if (matchingKeys.empty()) {
 			cout << "Contact with name '" << name << "' not found!" << endl;
 			return;
 		}
 
-		if (matchingContacts.size() == 1) {
+		if (matchingKeys.size() == 1) {
 			// If only one contact with the given name exists, delete it directly
-			string key = directory.generateUniqueKey(name);
-			directory.contacts.erase(key);
+			directory.contacts.erase(matchingKeys.front());
 			cout << "Contact deleted successfully." << endl;
 		}
 		else {
 			// If multiple contacts with the given name exist, prompt the user to choose one
 			cout << "Multiple contacts found with name '" << name << "'. Please choose an ID:" << endl;
-			for (auto contact : matchingContacts) {
-				cout << "ID: " << contact->getID() << ", Name: " << contact->name << endl;
+			for (const auto& key : matchingKeys) {
+				cout << "ID: " << directory.contacts[key].getID() << ", Name: " << directory.contacts[key].name << endl;
 			}
 
 			int choiceID;
@@ -206,13 +205,14 @@ public:
 			cin >> choiceID;
 
 			// Find the chosen contact by ID
-			auto it = find_if(matchingContacts.begin(), matchingContacts.end(),
-				[choiceID](const Contact* contact) { return contact->getID() == choiceID; });
+			auto it = find_if(matchingKeys.begin(), matchingKeys.end(),
+				[&directory, choiceID](const string& key) {
+					return directory.contacts[key].getID() == choiceID;
+				});
 
-			if (it != matchingContacts.end()) {
+			if (it != matchingKeys.end()) {
 				// Delete the chosen contact
-				string key = directory.generateUniqueKey(name);
-				directory.contacts.erase(key);
+				directory.contacts.erase(*it);
 				cout << "Contact deleted successfully." << endl;
 			}
 			else {
