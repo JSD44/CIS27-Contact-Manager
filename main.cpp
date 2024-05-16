@@ -680,7 +680,7 @@ int main() {
 			break;
 		}
 
-	} while (choice != 10);
+	} while (choice != (9 || 10));
 
 	// Save contacts to file
 	directory.saveToFile("contacts.txt");
